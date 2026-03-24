@@ -47,7 +47,6 @@
     }
 
     input[type="text"],
-    input[type="email"],
     input[type="password"] {
       width: 100%;
       padding: 10px 14px;
@@ -58,7 +57,6 @@
     }
 
     input[type="text"]:focus,
-    input[type="email"]:focus,
     input[type="password"]:focus {
       outline: none;
       border-color: #4a90e2;
@@ -81,52 +79,77 @@
       background-color: #357abd;
     }
 
-    .forgot-password {
-      display: block;
-      text-align: center;
+    .btn-login:disabled {
+      background-color: #a0bce8;
+      cursor: not-allowed;
+    }
+
+    .message {
       margin-top: 16px;
-      font-size: 13px;
-      color: #4a90e2;
-      text-decoration: none;
-    }
-
-    .forgot-password:hover {
-      text-decoration: underline;
-    }
-
-    .signup-link {
       text-align: center;
-      margin-top: 20px;
-      font-size: 13px;
-      color: #555555;
+      font-size: 14px;
     }
 
-    .signup-link a {
-      color: #4a90e2;
-      text-decoration: none;
-    }
-
-    .signup-link a:hover {
-      text-decoration: underline;
-    }
+    .message.success { color: #2e7d32; }
+    .message.error   { color: #c62828; }
   </style>
 </head>
 <body>
   <div class="login-container">
     <h2>Login</h2>
-    <form action="#" method="POST">
+    <form id="loginForm">
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Enter your email" required />
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required />
       </div>
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Enter your password" required />
       </div>
-      <button type="submit" class="btn-login">Login</button>
+      <button type="submit" class="btn-login" id="submitBtn">Login</button>
     </form>
-    <a href="#" class="forgot-password">Forgot password?</a>
-    <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
+    <p class="message" id="message"></p>
   </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submitBtn');
+      const msg = document.getElementById('message');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      msg.textContent = '';
+      msg.className = 'message';
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          msg.textContent = 'Login successful!';
+          msg.className = 'message success';
+        } else {
+          msg.textContent = data.error || 'Login failed. Please try again.';
+          msg.className = 'message error';
+        }
+      } catch (err) {
+        console.error('Login request failed:', err);
+        msg.textContent = 'Network error. Please try again.';
+        msg.className = 'message error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }
+    });
+  </script>
 </body>
 </html>
