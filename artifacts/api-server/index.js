@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const indexPath = path.resolve(__dirname, "../../index.html");
+const indexPath = path.join(__dirname, "index.html");
 
 app.get("/", (_req, res) => {
   res.sendFile(indexPath);
