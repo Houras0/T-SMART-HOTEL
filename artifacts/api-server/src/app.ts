@@ -32,11 +32,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-const serveIndex = (req: express.Request, res: express.Response) => {
-  res.sendFile(path.resolve(process.cwd(), "../../index.html"));
-};
+const indexPath = path.resolve(process.cwd(), "../../index.html");
 
-app.get("/", serveIndex);
-app.get("/api/", serveIndex);
+app.get(/(.*)/, (req: express.Request, res: express.Response) => {
+  res.sendFile(indexPath);
+});
 
 export default app;
