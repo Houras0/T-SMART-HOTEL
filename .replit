@@ -11,6 +11,10 @@ expertMode = true
 localPort = 8080
 externalPort = 80
 
+[[ports]]
+localPort = 26006
+externalPort = 3001
+
 [nix]
 channel = "stable-25_05"
 packages = ["psmisc"]
