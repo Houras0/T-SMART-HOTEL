@@ -1,46 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - 1xBet</title>
-    <style>
-        body { font-family: sans-serif; background:#f4f7f9; margin:0; display:flex; justify-content:center; }
-        .card { background:white; width:100%; max-width:400px; min-height:100vh; display:flex; flex-direction:column; }
-        .header { padding:15px; display:flex; justify-content:space-between; border-bottom:1px solid #eee; font-weight:bold; }
-        .tabs { display:flex; border-bottom:1px solid #eee; }
-        .tab { flex:1; text-align:center; padding:15px 5px; font-size:11px; color:#666; cursor:pointer; }
-        .tab.active { color:#1a73e8; border-bottom:2px solid #1a73e8; font-weight:bold; }
-        .form { padding:20px; flex-grow:1; }
-        input { width:100%; padding:15px; margin-bottom:15px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; }
-        .btn { width:100%; padding:15px; background:#82b541; color:white; border:none; border-radius:4px; font-size:18px; font-weight:bold; cursor:pointer; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0c1726">
+    <title>إنشاء حساب جديد</title>
 </head>
 <body>
-    <div class="card">
-        <div class="header"><span>➔</span><span>تسجيل الدخول</span><span></span></div>
-        <div class="tabs">
-            <div class="tab">📧<br>البريد</div><div class="tab">💬<br>الرمز</div>
-            <div class="tab active">📱<br>الهاتف</div><div class="tab">👥<br>الشبكات</div>
-        </div>
-        <div class="form">
-            <input type="text" id="u" placeholder="البريد الإلكتروني أو المعرف *">
-            <input type="password" id="p" placeholder="كلمة المرور *">
-            <button class="btn" onclick="send()">تسجيل الدخول</button>
-        </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-        async function send() {
-            const u = document.getElementById('u').value;
-            const p = document.getElementById('p').value;
-            if(!u || !p) return;
-            const res = await fetch('/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: u, password: p})
-            });
-            if(res.ok) window.location.href = "/deposit";
-        }
-    </script>
 </body>
 </html>
