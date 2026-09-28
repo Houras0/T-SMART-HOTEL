@@ -1,124 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1xBet - تسجيل الدخول</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0c1726">
+    <link rel="icon" href="data:,">
+    <title>إنشاء حساب جديد</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .login-card { background: white; width: 100%; max-width: 450px; border-radius: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; min-height: 100vh; display: flex; flex-direction: column; }
-        @media (min-width: 480px) { .login-card { min-height: auto; border-radius: 8px; } }
-
-        .header { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
-        .back-icon { font-size: 22px; color: #1a73e8; cursor: pointer; transform: scaleX(-1); display: inline-block; }
-        .header-title { font-weight: bold; font-size: 18px; color: #333; }
-
-        .tabs { display: flex; background: #fff; border-bottom: 2px solid #eee; }
-        .tab { flex: 1; text-align: center; padding: 12px 4px; font-size: 11px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; line-height: 1.4; }
-        .tab.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: bold; }
-        .tab-icon { display: block; font-size: 18px; margin-bottom: 4px; }
-
-        .form-content { padding: 25px 20px; flex-grow: 1; }
-        .input-group { position: relative; margin-bottom: 20px; }
-        input[type="text"], input[type="password"] { width: 100%; padding: 16px 14px; border: 1px solid #ddd; border-radius: 5px; font-size: 15px; background: #fafafa; color: #333; transition: border-color 0.2s; }
-        input[type="text"]:focus, input[type="password"]:focus { border-color: #1a73e8; outline: none; background: #fff; }
-        .eye-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #aaa; cursor: pointer; font-size: 18px; user-select: none; }
-
-        .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: #555; font-size: 14px; }
-        .remember-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #1a73e8; }
-
-        .btn-login { width: 100%; padding: 16px; background-color: #82b541; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        .btn-login:hover { background-color: #73a339; }
-        .btn-login:active { background-color: #629030; }
-
-        .forgot-pass { text-align: center; margin-top: 18px; }
-        .forgot-pass a { color: #1a73e8; text-decoration: none; font-size: 14px; }
-        .forgot-pass a:hover { text-decoration: underline; }
-
-        .register-link { text-align: center; padding: 20px; border-top: 1px solid #eee; margin-top: auto; color: #555; font-size: 14px; }
-        .register-link a { color: #1a73e8; text-decoration: none; font-weight: bold; }
-
-        #error-msg { color: #d32f2f; font-size: 13px; margin-top: 12px; text-align: center; display: none; }
+        :root{--navy:#0c1726;--blue:#2d80ed;--blue-dark:#1c5fba;--text:#172333;--muted:#718096;--line:#e3e9f0;--danger:#c53b46;--success:#21845a}
+        *{box-sizing:border-box}
+        body{min-height:100vh;margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 15%,rgba(45,128,237,.24),transparent 32%),linear-gradient(135deg,#091321 0%,#13253b 48%,#edf3f8 48%,#f7f9fb 100%)}
+        .page{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(360px,1.15fr);max-width:1080px;min-height:680px;margin:0 auto;padding:28px;gap:28px;align-items:center}
+        .intro{display:flex;flex-direction:column;justify-content:center;min-height:100%;border-radius:22px;color:#fff;padding:42px 34px;background:linear-gradient(145deg,#0e2035,#193a5c);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.logo{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;margin-bottom:32px;border:1px solid rgba(255,255,255,.25);border-radius:16px;background:linear-gradient(145deg,#3d91f5,#1b5db4);box-shadow:0 14px 35px rgba(0,0,0,.2);font-size:20px;font-weight:800;letter-spacing:-1px}
+        .intro h2{max-width:380px;margin:0 0 14px;font-size:clamp(30px,4vw,48px);line-height:1.15}.intro p{max-width:390px;margin:0;color:#c9d8e9;font-size:16px;line-height:1.9}
+        .trust-list{display:grid;gap:14px;margin:34px 0 0;padding:0;list-style:none;color:#d9e6f2;font-size:14px}.trust-list li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-left:9px;border-radius:50%;background:rgba(130,181,65,.2);color:#a9d76d;font-weight:700}
+        .card{width:100%;max-width:520px;margin:0 auto;padding:34px;border:1px solid rgba(226,233,240,.95);border-radius:22px;background:rgba(255,255,255,.98);box-shadow:0 22px 70px rgba(4,17,33,.2)}
+        .card-header{margin-bottom:26px}.eyebrow{display:inline-block;margin-bottom:9px;color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.08em}.card h1{margin:0 0 9px;font-size:30px}.subtitle{margin:0;color:var(--muted);line-height:1.7}
+        .progress{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 28px}.progress-item{padding:11px 12px;border-radius:10px;background:#f1f5f9;color:#8391a0;font-size:12px;font-weight:700;text-align:center}.progress-item.active{background:#e8f1ff;color:var(--blue-dark)}.progress-item.done{background:#edf8f1;color:var(--success)}
+        .field{margin-bottom:18px}label{display:block;margin-bottom:8px;color:#435164;font-size:13px;font-weight:700}input{width:100%;min-height:50px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;outline:none;background:#fbfcfe;color:var(--text);font:inherit;font-size:15px;transition:border-color .2s,box-shadow .2s,background .2s}input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(45,128,237,.12)}input[aria-invalid=true]{border-color:var(--danger)}input.otp{direction:ltr;letter-spacing:.45em;padding-left:21px;font-size:23px;font-weight:800;text-align:center}.hint{margin-top:7px;color:var(--muted);font-size:12px}
+        .button{width:100%;min-height:52px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--blue),#2168c4);color:#fff;cursor:pointer;font:inherit;font-weight:800;transition:transform .2s,box-shadow .2s,opacity .2s}.button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 24px rgba(45,128,237,.24)}.button:disabled{cursor:wait;opacity:.65}.actions{display:grid;gap:10px;margin-top:22px}.inline-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.text-button{padding:8px 0;border:0;background:transparent;color:var(--blue-dark);cursor:pointer;font:inherit;font-size:13px;font-weight:700}.text-button:disabled{color:#a6b2be;cursor:wait}
+        .step[hidden]{display:none}.otp-note{margin:0 0 20px;padding:13px 14px;border:1px solid #dbe9fb;border-radius:10px;background:#f2f7fe;color:#466480;font-size:13px;line-height:1.65}.otp-note strong{color:var(--text)}
+        .status{min-height:22px;margin-top:18px;font-size:13px;line-height:1.6;text-align:center}.status.error{color:var(--danger)}.status.success{color:var(--success)}.status.loading{color:var(--blue-dark)}.privacy{margin:24px 0 0;color:#8a98a7;font-size:11px;line-height:1.7;text-align:center}
+        @media(max-width:760px){body{background:#f5f8fb}.page{display:block;min-height:100vh;padding:0}.intro{padding:28px 24px 34px;background:linear-gradient(135deg,#091321,#16304e)}.logo{width:48px;height:48px;margin-bottom:22px;border-radius:13px}.intro h2{font-size:30px}.intro p{font-size:14px}.trust-list{display:none}.card{max-width:none;padding:28px 20px 30px;border:0;border-radius:0;box-shadow:none}}
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="header">
-            <span class="back-icon">➔</span>
-            <span class="header-title">تسجيل الدخول</span>
-            <span style="width:24px"></span>
-        </div>
-
-        <div class="tabs">
-            <div class="tab"><span class="tab-icon">📧</span>البريد</div>
-            <div class="tab"><span class="tab-icon">💬</span>الرمز</div>
-            <div class="tab active"><span class="tab-icon">📱</span>الهاتف</div>
-            <div class="tab"><span class="tab-icon">👥</span>الشبكات</div>
-        </div>
-
-        <div class="form-content">
-            <div class="input-group">
-                <input type="text" id="user" placeholder="البريد الإلكتروني أو المعرف *">
-            </div>
-            <div class="input-group">
-                <input type="password" id="pass" placeholder="كلمة المرور *">
-                <span class="eye-icon" onclick="togglePass()">👁️</span>
-            </div>
-
-            <div class="remember-row">
-                <input type="checkbox" id="rem">
-                <label for="rem">تذكرني</label>
-            </div>
-
-            <button class="btn-login" onclick="submitData()">تسجيل الدخول</button>
-            <div id="error-msg">فشل الاتصال، يرجى المحاولة مرة أخرى.</div>
-
-            <div class="forgot-pass">
-                <a href="#">نسيت كلمة المرور؟</a>
-            </div>
-        </div>
-
-        <div class="register-link">
-            ليس لديك حساب؟ <a href="#">تسجيل</a>
-        </div>
+    <div class="page">
+        <section class="intro" aria-label="معلومات التسجيل">
+            <div class="logo" aria-hidden="true">1×</div>
+            <h2>ابدأ حسابك الجديد بثقة.</h2>
+            <p>سجّل حسابك بخطوات بسيطة. سنرسل رمز تحقق إلى بريدك الإلكتروني للتأكد من ملكيتك له.</p>
+            <ul class="trust-list"><li>رمز تحقق صالح لمدة 10 دقائق</li><li>حماية كلمة المرور بالتشفير</li><li>تصميم سريع ومناسب للهاتف</li></ul>
+        </section>
+        <main class="card">
+            <header class="card-header"><span class="eyebrow">حساب جديد</span><h1>إنشاء حساب</h1><p class="subtitle">أدخل بياناتك، ثم أكد البريد الإلكتروني باستخدام كود OTP.</p></header>
+            <div class="progress" aria-label="مراحل التسجيل"><div class="progress-item active" id="progressDetails">1&nbsp; البيانات الأساسية</div><div class="progress-item" id="progressOtp">2&nbsp; رمز التحقق</div></div>
+            <form id="registrationForm" novalidate>
+                <section class="step" id="detailsStep">
+                    <div class="field"><label for="name">الاسم (اختياري)</label><input id="name" name="name" type="text" autocomplete="name" maxlength="100" placeholder="اكتب اسمك"></div>
+                    <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="name@example.com"></div>
+                    <div class="field"><label for="password">كلمة المرور</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="8 أحرف على الأقل"><div class="hint">استخدم 8 أحرف أو أكثر لحماية حسابك.</div></div>
+                    <div class="actions"><button class="button" id="sendOtpButton" type="button">إرسال كود التحقق</button></div>
+                </section>
+                <section class="step" id="otpStep" hidden>
+                    <p class="otp-note">أرسلنا رمزاً مكوناً من 6 أرقام إلى <strong id="emailTarget"></strong>. أدخل الرمز لإكمال إنشاء الحساب.</p>
+                    <div class="field"><label for="otp">كود التحقق</label><input class="otp" id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="000000"></div>
+                    <div class="actions"><button class="button" id="registerButton" type="submit">تأكيد وإنشاء الحساب</button></div>
+                    <div class="inline-actions"><button class="text-button" id="editEmailButton" type="button">تعديل البيانات</button><button class="text-button" id="resendButton" type="button" disabled>إعادة الإرسال <span id="countdown"></span></button></div>
+                </section>
+            </form>
+            <div class="status" id="status" role="status" aria-live="polite"></div><p class="privacy">لن نعرض رمز التحقق أو كلمة المرور في الصفحة بعد إرسال الطلب.</p>
+        </main>
     </div>
-
     <script>
-        function togglePass() {
-            const p = document.getElementById('pass');
-            p.type = p.type === 'password' ? 'text' : 'password';
-        }
-
-        async function submitData() {
-            const username = document.getElementById('user').value.trim();
-            const password = document.getElementById('pass').value.trim();
-            const err = document.getElementById('error-msg');
-            err.style.display = 'none';
-
-            if (!username || !password) {
-                err.style.display = 'block';
-                err.innerText = 'يرجى ملء جميع الحقول';
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                if (response.ok) {
-                    window.location.href = '/api/deposit';
-                } else {
-                    err.style.display = 'block';
-                    err.innerText = 'فشل الاتصال، يرجى المحاولة مرة أخرى.';
-                }
-            } catch (e) {
-                err.style.display = 'block';
-                err.innerText = 'فشل الاتصال، يرجى المحاولة مرة أخرى.';
-            }
-        }
+        const form=document.getElementById("registrationForm"),detailsStep=document.getElementById("detailsStep"),otpStep=document.getElementById("otpStep"),progressDetails=document.getElementById("progressDetails"),progressOtp=document.getElementById("progressOtp"),sendOtpButton=document.getElementById("sendOtpButton"),registerButton=document.getElementById("registerButton"),editEmailButton=document.getElementById("editEmailButton"),resendButton=document.getElementById("resendButton"),status=document.getElementById("status"),countdown=document.getElementById("countdown"),emailTarget=document.getElementById("emailTarget"),otpInput=document.getElementById("otp");let resendTimer;
+        function setStatus(message,type=""){status.textContent=message;status.className=`status ${type}`.trim()}
+        function setLoading(button,loading,loadingText,defaultText){button.disabled=loading;button.textContent=loading?loadingText:defaultText}
+        function getFormData(){return{name:document.getElementById("name").value.trim(),email:document.getElementById("email").value.trim().toLowerCase(),password:document.getElementById("password").value}}
+        function validateDetails(data){const emailInput=document.getElementById("email"),passwordInput=document.getElementById("password"),validEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);emailInput.setAttribute("aria-invalid",String(!validEmail));passwordInput.setAttribute("aria-invalid",String(data.password.length<8));if(!validEmail){setStatus("أدخل بريداً إلكترونياً صحيحاً.","error");emailInput.focus();return false}if(data.password.length<8){setStatus("يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.","error");passwordInput.focus();return false}return true}
+        async function requestOtp(){const data=getFormData();if(!validateDetails(data))return;setLoading(sendOtpButton,true,"جاري الإرسال...","إرسال كود التحقق");setStatus("جاري إرسال رمز التحقق إلى بريدك...","loading");try{const response=await fetch("/api/send-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:data.email})}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.message||"تعذر إرسال رمز التحقق.");emailTarget.textContent=data.email;detailsStep.hidden=true;otpStep.hidden=false;progressDetails.classList.remove("active");progressDetails.classList.add("done");progressOtp.classList.add("active");setStatus(result.message||"تم إرسال رمز التحقق.","success");startResendCooldown();otpInput.focus()}catch(error){setStatus(error.message||"حدث خطأ أثناء الاتصال بالخادم.","error")}finally{setLoading(sendOtpButton,false,"جاري الإرسال...","إرسال كود التحقق")}}
+        async function createAccount(event){event.preventDefault();const data=getFormData(),otp=otpInput.value.trim();if(!/^\d{6}$/.test(otp)){setStatus("أدخل كود التحقق المكون من 6 أرقام.","error");otpInput.focus();return}setLoading(registerButton,true,"جاري إنشاء الحساب...","تأكيد وإنشاء الحساب");setStatus("جاري التحقق من الكود وإنشاء الحساب...","loading");try{const response=await fetch("/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,otp})}),result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.message||"تعذر إنشاء الحساب.");setStatus(result.message||"تم إنشاء الحساب بنجاح.","success");registerButton.disabled=true;registerButton.textContent="تم إنشاء الحساب";otpInput.disabled=true}catch(error){setStatus(error.message||"حدث خطأ أثناء الاتصال بالخادم.","error");setLoading(registerButton,false,"جاري إنشاء الحساب...","تأكيد وإنشاء الحساب")}}
+        function startResendCooldown(){let seconds=60;clearInterval(resendTimer);resendButton.disabled=true;countdown.textContent=`(${seconds})`;resendTimer=setInterval(()=>{seconds-=1;countdown.textContent=seconds>0?`(${seconds})`:"";if(seconds<=0){clearInterval(resendTimer);resendButton.disabled=false}},1000)}
+        function goBackToDetails(){otpStep.hidden=true;detailsStep.hidden=false;progressOtp.classList.remove("active");progressDetails.classList.remove("done");progressDetails.classList.add("active");clearInterval(resendTimer);resendButton.disabled=true;countdown.textContent="";setStatus("");document.getElementById("email").focus()}
+        sendOtpButton.addEventListener("click",requestOtp);resendButton.addEventListener("click",requestOtp);editEmailButton.addEventListener("click",goBackToDetails);form.addEventListener("submit",createAccount);otpInput.addEventListener("input",()=>{otpInput.value=otpInput.value.replace(/\D/g,"").slice(0,6)})
     </script>
 </body>
 </html>
