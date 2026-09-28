@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 
 const axios = require('axios');
+const { registerAuthRoutes } = require('../../lib/auth-routes');
 
 const app = express();
 
@@ -11,6 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use(express.static(__dirname));
+registerAuthRoutes(app);
 
 
 
@@ -56,4 +58,5 @@ app.get('/deposit', (req, res) => res.sendFile(path.join(__dirname, 'deposit.htm
 
 
 
-app.listen(8080, '0.0.0.0', () => console.log('الموقع يعمل الآن بنجاح!'));
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => console.log(`الموقع يعمل الآن بنجاح على المنفذ ${PORT}!`));

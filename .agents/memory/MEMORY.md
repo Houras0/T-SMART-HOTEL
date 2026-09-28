@@ -1,0 +1,1 @@
+- [Server port layout](port-layout.md) — root and API artifact entry points share a port; verify ownership before restarting or testing.
