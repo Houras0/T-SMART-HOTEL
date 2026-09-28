@@ -3,15 +3,18 @@ const path = require("path");
 const { registerAuthRoutes } = require("./lib/auth-routes");
 
 const app = express();
+const publicDir = path.join(__dirname, "public");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
-registerAuthRoutes(app);
+app.use(express.static(publicDir, { index: false }));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
+
+app.use(express.static(__dirname));
+registerAuthRoutes(app);
 
 app.get(["/api", "/api/"], (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
