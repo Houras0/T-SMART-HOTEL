@@ -1,0 +1,549 @@
+I want you to upgrade my existing T-SMART project to V7.
+
+IMPORTANT:
+Do NOT delete or replace my existing project blindly.
+First inspect the entire existing project structure and understand the current code.
+Preserve all existing UI, features, pages, styling, and functionality unless they must be changed to support V7.
+Then implement the V7 architecture by modifying the existing files or adding new files where appropriate.
+
+The goal is to turn T-SMART into a real Hotel Engineering Operations platform.
+
+==================================================
+1. BACKEND
+==================================================
+
+Use:
+- Node.js
+- Express
+- Socket.IO
+- SQLite using better-sqlite3
+- bcryptjs
+- JWT
+- dotenv
+- Nodemailer
+
+If some of these already exist, reuse them instead of duplicating them.
+
+Create/maintain a proper database with:
+
+users
+- id
+- user_code
+- name
+- email
+- password_hash
+- role
+- department
+- specialty
+- phone
+- online_status
+- last_seen
+- created_at
+
+work_orders
+- id
+- ticket_number
+- title
+- description
+- location
+- room
+- category
+- specialty
+- priority
+- status
+- reported_by
+- assigned_to
+- created_at
+- accepted_at
+- started_at
+- fixed_at
+- closed_at
+- sla_deadline
+
+messages
+- id
+- sender_id
+- receiver_id
+- work_order_id
+- message
+- created_at
+- read_at
+
+otp_codes
+- id
+- user_id
+- email
+- code_hash
+- expires_at
+- used
+- created_at
+
+==================================================
+2. AUTHENTICATION
+==================================================
+
+Implement real authentication.
+
+Login must support:
+
+Manager:
+TS-1001
+1234
+
+Technician:
+TS-2001
+1234
+
+Staff:
+TS-3001
+1234
+
+Passwords must be stored hashed using bcrypt.
+
+Use JWT authentication.
+
+Do not keep authentication only in frontend/localStorage without backend validation.
+
+==================================================
+3. OTP EMAIL
+==================================================
+
+Implement email OTP verification using Nodemailer.
+
+Read SMTP configuration from environment variables / Replit Secrets:
+
+JWT_SECRET
+SMTP_HOST
+SMTP_PORT
+SMTP_SECURE
+EMAIL_USER
+EMAIL_PASS
+EMAIL_FROM
+
+Never hard-code passwords or API keys.
+
+IMPORTANT:
+The current project has an OTP problem where the logs show:
+
+"OTP email delivery failed"
+
+and sometimes:
+
+code: undefined
+responseCode: undefined
+command: undefined
+
+Fix this properly.
+
+The application must:
+1. validate SMTP configuration
+2. create the transporter
+3. verify SMTP connection
+4. send the OTP
+5. return the real error if sending fails
+6. log the complete SMTP error safely
+7. never expose email passwords or secrets in logs
+8. clearly tell the user whether the OTP was actually sent
+
+Add useful diagnostics such as:
+
+FULL SMTP ERROR
+message
+name
+code
+command
+response
+responseCode
+
+but NEVER print SMTP passwords/API keys.
+
+Do not silently swallow sendMail errors.
+
+If Gmail SMTP is unreliable, structure the email service so it can later support Resend or SendGrid without rewriting the authentication system.
+
+==================================================
+4. WORK ORDERS
+==================================================
+
+Implement real maintenance tickets.
+
+Hotel staff can report:
+
+- AC
+- Electrical
+- Plumbing
+- Carpentry
+- Kitchen Equipment
+- Refrigeration
+- Housekeeping Maintenance
+- General Maintenance
+
+A report should contain:
+
+Location
+Room
+Problem description
+Category
+Priority
+Photo if supported
+
+Example:
+
+"AC in room 324 is not cooling and making noise"
+
+The backend should create a work order.
+
+==================================================
+5. SMART ROUTING
+==================================================
+
+Implement Smart Routing.
+
+Based on the problem description/category:
+
+AC -> HVAC technician
+Electrical -> Electrical technician
+Plumbing -> Plumbing technician
+Kitchen Equipment -> Kitchen Equipment technician
+Refrigeration -> Refrigeration technician
+General -> General Maintenance
+
+Automatically suggest the appropriate technician.
+
+Do not pretend this is real AI if it is currently rule-based.
+
+Build the architecture so a real AI classifier can be added later.
+
+==================================================
+6. TECHNICIAN WORKFLOW
+==================================================
+
+Technician must receive assigned work orders in real time.
+
+Statuses:
+
+NEW
+ACCEPTED
+ON_THE_WAY
+STARTED
+FIXED
+CLOSED
+
+Technician can:
+
+Accept
+On the way
+Start
+Mark fixed
+
+Manager can close the work order.
+
+Every status change must be saved in the database.
+
+==================================================
+7. REAL-TIME SOCKET.IO
+==================================================
+
+Implement Socket.IO.
+
+Features:
+
+- online/offline technician presence
+- real-time new work order notification
+- assignment notification
+- status update notification
+- chat messages
+- manager notifications
+
+When a technician logs in:
+
+online_status = online
+
+When disconnected:
+
+online_status = offline
+
+Update last_seen.
+
+==================================================
+8. INTERNAL CHAT
+==================================================
+
+Implement internal chat similar in concept to a professional work chat.
+
+Users can communicate with:
+
+Manager
+Technicians
+Staff
+
+Messages should be stored in SQLite.
+
+Use Socket.IO for real-time messaging.
+
+Every conversation should remain inside the T-SMART system.
+
+Do NOT integrate WhatsApp itself.
+
+==================================================
+9. ROLES
+==================================================
+
+Manager dashboard:
+
+- total open tickets
+- critical tickets
+- technicians online
+- pending tickets
+- SLA warnings
+- recent activity
+- team status
+- work orders
+- chat
+
+Technician dashboard:
+
+- my assigned jobs
+- new jobs
+- active jobs
+- completed jobs
+- online status
+- chat
+
+Staff dashboard:
+
+- report problem
+- my reports
+- ticket status
+- chat/support
+
+==================================================
+10. SLA
+==================================================
+
+Add SLA countdown.
+
+Each priority should have a configurable response/fix target.
+
+Example:
+
+Critical
+High
+Medium
+Low
+
+Show:
+
+SLA remaining
+SLA warning
+SLA breached
+
+Do not hard-code the business rules in the UI.
+Keep SLA logic in the backend/configuration.
+
+==================================================
+11. QR CODE READY ARCHITECTURE
+==================================================
+
+Prepare the system for QR codes.
+
+A QR code can represent:
+
+room
+asset
+equipment
+
+Example:
+
+ROOM-324
+
+When a QR is scanned, the reporting screen should automatically know the location/asset.
+
+If QR scanning is not already implemented, create the backend/data architecture and UI entry point for it.
+
+==================================================
+12. ASSETS
+==================================================
+
+Create an asset structure.
+
+Assets should support:
+
+- asset ID
+- asset name
+- category
+- location
+- room
+- status
+- maintenance history
+
+Prepare the system for preventive maintenance later.
+
+==================================================
+13. ANALYTICS
+==================================================
+
+Create analytics-ready backend calculations for:
+
+MTTA
+MTTR
+repeat faults
+SLA compliance
+technician workload
+open vs closed tickets
+faults by category
+faults by location
+
+Show useful dashboard charts/cards without adding fake data.
+
+==================================================
+14. UI/UX
+==================================================
+
+Keep the current T-SMART visual identity if it already exists.
+
+The application should feel like:
+
+professional SaaS
+hotel operations software
+mobile-first
+dark mode
+responsive
+clean
+fast
+commercial
+
+Navigation should support:
+
+Home
+Work Orders
+Team
+Chat
+Analytics
+Assets
+Reports
+More
+
+Use a floating "+" action for:
+
+Report Fault
+Create Work Order
+
+Do not turn this into a basic HTML demo.
+
+==================================================
+15. SECURITY
+==================================================
+
+Implement:
+
+JWT authentication
+bcrypt passwords
+role-based authorization
+input validation
+secure password handling
+environment variables for secrets
+safe error messages
+protected API routes
+
+Never expose:
+
+SMTP password
+JWT secret
+API keys
+password hashes
+
+==================================================
+16. DATABASE
+==================================================
+
+The application should automatically create the SQLite database and required tables if they do not exist.
+
+Seed only safe demo accounts:
+
+TS-1001 / 1234
+TS-2001 / 1234
+TS-3001 / 1234
+
+Make sure the application does not create duplicate users every time it starts.
+
+==================================================
+17. ERROR HANDLING
+==================================================
+
+Add proper backend error handling.
+
+Do not return generic:
+
+"Something went wrong"
+
+when a useful safe diagnostic is available.
+
+For development logs, provide detailed errors.
+
+For the frontend, show a clear user-friendly message.
+
+==================================================
+18. TESTING
+==================================================
+
+After implementation, test:
+
+1. npm install
+2. server startup
+3. database creation
+4. login with TS-1001 / 1234
+5. login with TS-2001 / 1234
+6. login with TS-3001 / 1234
+7. JWT authentication
+8. work order creation
+9. technician assignment
+10. Socket.IO connection
+11. real-time notification
+12. chat
+13. status changes
+14. SMTP configuration validation
+15. OTP request
+16. OTP verification
+
+Fix all errors you find.
+
+==================================================
+19. VERY IMPORTANT
+==================================================
+
+Before changing anything:
+
+First inspect my current project.
+
+Show me:
+- current file structure
+- current server entry point
+- current frontend entry point
+- current database setup
+- current authentication
+- current OTP/email implementation
+
+Then implement the upgrade.
+
+Do not destroy existing functionality.
+
+If my existing project already has a feature, improve/integrate it instead of creating a duplicate version.
+
+If a dependency is missing, install it.
+
+If a file needs to be created, create it.
+
+If a file needs modification, modify it.
+
+At the end, give me:
+1. files changed
+2. files created
+3. dependencies added
+4. Replit Secrets I need to configure
+5. commands to run
+6. test login credentials
+7. any remaining limitations
+
+Do not stop after explaining what should be done.
+Actually implement the changes in the Replit project.

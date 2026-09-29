@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
-const { registerAuthRoutes } = require("./lib/auth-routes");
+require("dotenv").config();
+const { registerAuthRoutes, verifyEmailTransport } = require("./lib/auth-routes");
 
 const app = express();
 const publicDir = path.join(__dirname, "public");
@@ -15,6 +16,13 @@ app.get("/", (req, res) => {
 
 app.use(express.static(__dirname));
 registerAuthRoutes(app);
+void verifyEmailTransport()
+  .then(() => console.log("✅ Email SMTP connection verified"))
+  .catch((error) => console.error("⚠️ Email SMTP verification failed:", {
+    code: error?.code,
+    responseCode: error?.responseCode,
+    command: error?.command,
+  }));
 
 app.get(["/api", "/api/"], (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
