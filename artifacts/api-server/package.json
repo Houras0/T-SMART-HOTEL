@@ -3,14 +3,27 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
+    "start": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "build": "tsx build.mjs",
+    "seed:demo": "tsx src/seed.ts"
   },
   "dependencies": {
+    "@workspace/db": "workspace:*",
     "axios": "^1.13.6",
+    "cors": "^2.8.6",
     "dotenv": "^18.0.4",
     "express": "^5",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.10.2",
-    "nodemailer": "^10.0.11"
+    "nodemailer": "^10.0.11",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "esbuild": "^0.27.3",
+    "tsx": "^4.21.0"
   }
 }

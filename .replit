@@ -1,8 +1,8 @@
 modules = ["nodejs-24"]
-run = "node index.js"
+run = "pnpm --filter @workspace/api-server run dev"
 
 [deployment]
-run = "node index.js"
+run = "pnpm --filter @workspace/api-server run start"
 
 [agent]
 expertMode = true

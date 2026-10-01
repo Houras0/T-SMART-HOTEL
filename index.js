@@ -1,38 +1,18 @@
-const express = require("express");
-const path = require("path");
-require("dotenv").config();
-const { registerAuthRoutes, verifyEmailTransport } = require("./lib/auth-routes");
+const { spawn } = require("child_process");
 
-const app = express();
-const publicDir = path.join(__dirname, "public");
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(publicDir, { index: false }));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
+const child = spawn("pnpm", ["--filter", "@workspace/api-server", "run", "dev"], {
+  cwd: __dirname,
+  env: process.env,
+  stdio: "inherit",
 });
 
-app.use(express.static(__dirname));
-registerAuthRoutes(app);
-void verifyEmailTransport()
-  .then(() => console.log("✅ Email SMTP connection verified"))
-  .catch((error) => console.error("⚠️ Email SMTP verification failed:", {
-    code: error?.code,
-    responseCode: error?.responseCode,
-    command: error?.command,
-  }));
+const forwardSignal = (signal) => {
+  if (!child.killed) child.kill(signal);
+};
 
-app.get(["/api", "/api/"], (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+process.on("SIGINT", () => forwardSignal("SIGINT"));
+process.on("SIGTERM", () => forwardSignal("SIGTERM"));
 
-app.get("/deposit", (req, res) => {
-  res.sendFile(path.join(__dirname, "deposit.html"));
-});
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Ready on port ${PORT}!`);
+child.on("exit", (code, signal) => {
+  process.exitCode = signal ? 1 : code ?? 1;
 });

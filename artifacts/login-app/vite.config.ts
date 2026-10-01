@@ -6,13 +6,7 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { cartographer } from "@replit/vite-plugin-cartographer";
 import { devBanner } from "@replit/vite-plugin-dev-banner";
 
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
+const rawPort = process.env.PORT || "26006";
 
 const port = Number(rawPort);
 
@@ -20,13 +14,7 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    "BASE_PATH environment variable is required but was not provided.",
-  );
-}
+const basePath = process.env.BASE_PATH || "/";
 
 export default defineConfig({
   base: basePath,
@@ -63,6 +51,11 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8080",
+        changeOrigin: false,
+      },
+      "/socket.io": {
+        target: "http://127.0.0.1:8080",
+        ws: true,
         changeOrigin: false,
       },
     },
