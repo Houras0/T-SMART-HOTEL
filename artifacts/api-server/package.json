@@ -13,6 +13,7 @@
     "axios": "^1.13.6",
     "cors": "^2.8.6",
     "dotenv": "^18.0.4",
+    "drizzle-orm": "catalog:",
     "express": "^5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.10.2",

@@ -11,6 +11,10 @@ type Presence = AuthUser & {
 
 const onlineUsers = new Map<number, Presence>();
 
+export function userRoom(hotelId: number, userId: number): string {
+  return `hotel:${hotelId}:user:${userId}`;
+}
+
 export function attachRealtime(io: Server): void {
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
@@ -50,7 +54,7 @@ export function attachRealtime(io: Server): void {
 
   io.on("connection", (socket) => {
     const user = socket.data.user as AuthUser;
-    socket.join(`user:${user.id}`);
+    socket.join(userRoom(user.hotelId, user.id));
     socket.join(`hotel:${user.hotelId}`);
     socket.join(`hotel:${user.hotelId}:role:${user.role}`);
 

@@ -39,7 +39,7 @@ import {
   type Role,
 } from "./security";
 import { getEmailErrorDetails, sendOtpEmail } from "./email";
-import { listOnlineTechnicians } from "./realtime";
+import { listOnlineTechnicians, userRoom } from "./realtime";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
@@ -281,7 +281,7 @@ function emitWorkOrder(io: Server, hotelId: number, workOrder: { id: number; ass
   io.to(`hotel:${hotelId}:role:MANAGER`).emit("work-order:update", workOrder);
   io.to(`hotel:${hotelId}:role:STAFF`).emit("work-order:update", workOrder);
   if (workOrder.assignedTo) {
-    io.to(`user:${workOrder.assignedTo}`).emit("work-order:update", workOrder);
+    io.to(userRoom(hotelId, workOrder.assignedTo)).emit("work-order:update", workOrder);
   }
 }
 
@@ -553,7 +553,17 @@ export function createApp(io: Server): Express {
   });
 
   app.get("/api/auth/me", requireAuth, async (req, res) => {
-    res.json({ success: true, user: userFrom(req) });
+    const user = userFrom(req);
+    const userHotels = await db.select({
+      id: hotels.id,
+      name: hotels.name,
+      logoUrl: hotels.logoUrl,
+      role: hotelMemberships.role,
+    })
+      .from(hotelMemberships)
+      .innerJoin(hotels, eq(hotels.id, hotelMemberships.hotelId))
+      .where(and(eq(hotelMemberships.userId, user.id), eq(hotelMemberships.isActive, true)));
+    res.json({ success: true, user, hotels: userHotels });
   });
 
   app.post("/api/auth/switch-hotel", requireAuth, async (req, res) => {
@@ -581,15 +591,46 @@ export function createApp(io: Server): Express {
     const user = userFrom(req);
     const name = cleanText(req.body?.name, 140);
     const logoUrl = cleanText(req.body?.logoUrl, 800);
-    if (!name || (logoUrl && !/^https:\/\/|^\//i.test(logoUrl))) {
+    const current = (await db.select().from(hotels).where(eq(hotels.id, user.hotelId)).limit(1))[0];
+    if (!current) {
+      res.status(404).json({ success: false, message: "الفندق غير موجود" });
+      return;
+    }
+    if (!name || (logoUrl && !(logoUrl.startsWith("/") && !logoUrl.startsWith("//")) && !/^https:\/\/[a-z0-9.-]+(?:\/|$)/i.test(logoUrl))) {
       res.status(400).json({ success: false, message: "تحقق من اسم الفندق ورابط الشعار الآمن" });
       return;
     }
+    const oldSettings = current.settings || {};
+    const incoming = req.body?.settings && typeof req.body.settings === "object" ? req.body.settings : {};
+    const timezone = cleanText(incoming.timezone, 80) || String(oldSettings.timezone || "Africa/Cairo");
+    const currency = cleanText(incoming.currency, 3).toUpperCase() || String(oldSettings.currency || "EGP");
+    let timezoneIsValid = true;
+    try { new Intl.DateTimeFormat("en", { timeZone: timezone }); } catch { timezoneIsValid = false; }
+    const requestedSla = incoming.slaHours && typeof incoming.slaHours === "object" ? incoming.slaHours : {};
+    const currentSla = (oldSettings.slaHours || defaultSlaHours) as Record<string, unknown>;
+    const slaHours: Record<string, number> = {};
+    for (const priority of Object.keys(defaultSlaHours)) {
+      const value = Number(requestedSla[priority] ?? currentSla[priority] ?? defaultSlaHours[priority]);
+      if (!Number.isFinite(value) || value < 1 || value > 720) {
+        res.status(400).json({ success: false, message: "يجب أن تكون مهل SLA من ساعة إلى 720 ساعة" });
+        return;
+      }
+      slaHours[priority] = value;
+    }
+    if (!timezoneIsValid || !/^[A-Z]{3}$/.test(currency)) {
+      res.status(400).json({ success: false, message: "تحقق من المنطقة الزمنية ورمز العملة" });
+      return;
+    }
     const [hotel] = await db.update(hotels)
-      .set({ name, logoUrl: logoUrl || null, updatedAt: new Date() })
+      .set({
+        name,
+        logoUrl: logoUrl || null,
+        settings: { ...oldSettings, timezone, currency, slaHours },
+        updatedAt: new Date(),
+      })
       .where(eq(hotels.id, user.hotelId))
       .returning();
-    await writeAudit(user, "HOTEL_SETTINGS_UPDATED", "hotel", hotel.id, { name, logoChanged: true });
+    await writeAudit(user, "HOTEL_SETTINGS_UPDATED", "hotel", hotel.id, { name, timezone, currency, slaHours });
     io.to(`hotel:${user.hotelId}`).emit("hotel:update", hotel);
     res.json({ success: true, hotel });
   });
@@ -612,6 +653,39 @@ export function createApp(io: Server): Express {
     res.json({ members });
   });
 
+  app.patch("/api/hotel/members/:id", requireAuth, requireRoles("MANAGER"), async (req, res) => {
+    const user = userFrom(req);
+    const memberId = positiveInt(req.params.id);
+    const member = memberId
+      ? (await db.select().from(hotelMemberships)
+          .where(and(eq(hotelMemberships.userId, memberId), eq(hotelMemberships.hotelId, user.hotelId)))
+          .limit(1))[0]
+      : null;
+    if (!member) {
+      res.status(404).json({ success: false, message: "عضو الفريق غير موجود" });
+      return;
+    }
+    if (memberId === user.id) {
+      res.status(400).json({ success: false, message: "لا يمكنك تعطيل عضويتك أو تغيير دورك" });
+      return;
+    }
+    const role = req.body?.role === undefined ? member.role : cleanText(req.body.role, 20).toUpperCase();
+    const specialty = req.body?.specialty === undefined ? member.specialty : cleanText(req.body.specialty, 80) || null;
+    const isActive = req.body?.isActive === undefined ? member.isActive : req.body.isActive;
+    if (role === "MANAGER" || !["TECHNICIAN", "STAFF"].includes(role) || typeof isActive !== "boolean") {
+      res.status(400).json({ success: false, message: "الدور أو حالة العضوية غير صالحة" });
+      return;
+    }
+    const [updated] = await db.update(hotelMemberships)
+      .set({ role, specialty, isActive, updatedAt: new Date() })
+      .where(eq(hotelMemberships.id, member.id))
+      .returning();
+    await writeAudit(user, "MEMBER_UPDATED", "user", memberId, { role, specialty, isActive });
+    io.to(userRoom(user.hotelId, memberId)).emit("membership:revoked", { hotelId: user.hotelId });
+    io.in(userRoom(user.hotelId, memberId)).disconnectSockets(true);
+    res.json({ success: true, member: updated });
+  });
+
   app.post("/api/hotel/invitations", requireAuth, requireRoles("MANAGER"), rateLimit("invite", 20, 60 * 60 * 1000), async (req, res) => {
     const user = userFrom(req);
     const email = normalizeEmail(req.body?.email);
@@ -620,11 +694,6 @@ export function createApp(io: Server): Express {
     const specialty = cleanText(req.body?.specialty, 80) || null;
     if (!isValidEmail(email) || !name || !roles.includes(role) || role === "MANAGER") {
       res.status(400).json({ success: false, message: "بيانات الدعوة غير صالحة" });
-      return;
-    }
-    const existingUser = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
-    if (existingUser) {
-      res.status(409).json({ success: false, message: "الحساب موجود؛ أضف العضوية من لوحة إدارة الفريق" });
       return;
     }
     const otp = createOtp();
@@ -659,58 +728,77 @@ export function createApp(io: Server): Express {
     const otp = cleanText(req.body?.otp, 6);
     const name = cleanText(req.body?.name, 100);
     const password = typeof req.body?.password === "string" ? req.body.password : "";
-    if (!hotelId || !isValidEmail(email) || !/^\d{6}$/.test(otp) || name.length < 2 || password.length < 12) {
+    if (!hotelId || !isValidEmail(email) || !/^\d{6}$/.test(otp) || name.length < 2 || !password) {
       res.status(400).json({ success: false, message: "بيانات قبول الدعوة غير صالحة" });
       return;
     }
-    const invite = (await db.select().from(hotelInvitations)
-      .where(and(eq(hotelInvitations.hotelId, hotelId), eq(hotelInvitations.email, email)))
-      .limit(1))[0];
-    if (!invite || invite.expiresAt.getTime() < Date.now() || !verifyOtp(email, otp, invite.codeHash)) {
-      res.status(400).json({ success: false, message: "الدعوة منتهية أو الرمز غير صحيح" });
+    const existingAccount = (await db.select().from(users).where(eq(users.email, email)).limit(1))[0];
+    if (!existingAccount && password.length < 12) {
+      res.status(400).json({ success: false, message: "كلمة المرور للحساب الجديد يجب أن تكون 12 حرفاً على الأقل" });
       return;
     }
-    const existing = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
-    if (existing) {
-      res.status(409).json({ success: false, message: "هذا البريد لديه حساب بالفعل؛ تواصل مع مدير الفندق لربطه." });
+    if (existingAccount && !(await verifyPassword(password, existingAccount.passwordHash))) {
+      res.status(401).json({ success: false, message: "كلمة مرور الحساب الحالي غير صحيحة" });
       return;
     }
-    const account = await db.transaction(async (tx) => {
-      const [created] = await tx.insert(users).values({
-        email,
-        name,
-        passwordHash: await hashPassword(password),
-        role: invite.role,
-        specialty: invite.specialty,
-        emailVerified: true,
-      }).returning();
+    const passwordHash = existingAccount ? null : await hashPassword(password);
+    const result = await db.transaction(async (tx) => {
+      const invite = (await tx.select().from(hotelInvitations)
+        .where(and(eq(hotelInvitations.hotelId, hotelId), eq(hotelInvitations.email, email)))
+        .limit(1)
+        .for("update"))[0];
+      if (!invite || invite.expiresAt.getTime() < Date.now() || !verifyOtp(email, otp, invite.codeHash)) {
+        return null;
+      }
+      let account = existingAccount;
+      if (!account) {
+        [account] = await tx.insert(users).values({
+          email,
+          name,
+          passwordHash: passwordHash!,
+          role: invite.role,
+          specialty: invite.specialty,
+          emailVerified: true,
+        }).returning();
+      }
       await tx.insert(hotelMemberships).values({
         hotelId,
-        userId: created.id,
+        userId: account.id,
         role: invite.role,
         specialty: invite.specialty,
         isActive: true,
+      }).onConflictDoUpdate({
+        target: [hotelMemberships.hotelId, hotelMemberships.userId],
+        set: { role: invite.role, specialty: invite.specialty, isActive: true, updatedAt: new Date() },
       });
       await tx.delete(hotelInvitations).where(eq(hotelInvitations.id, invite.id));
       await tx.insert(auditLogs).values({
         hotelId,
-        actorId: created.id,
+        actorId: account.id,
         action: "INVITATION_ACCEPTED",
         entityType: "user",
-        entityId: String(created.id),
-        details: { role: invite.role },
+        entityId: String(account.id),
+        details: { role: invite.role, existingAccount: Boolean(existingAccount) },
       });
-      return created;
+      return { account, role: invite.role as Role, specialty: invite.specialty };
     });
+    if (!result) {
+      res.status(400).json({ success: false, message: "الدعوة منتهية أو الرمز غير صحيح" });
+      return;
+    }
     const user: AuthUser = {
-      id: account.id,
+      id: result.account.id,
       hotelId,
-      email: account.email,
-      name: account.name,
-      role: invite.role as Role,
-      specialty: invite.specialty,
+      email: result.account.email,
+      name: result.account.name,
+      role: result.role,
+      specialty: result.specialty,
     };
-    res.status(201).json({ success: true, user, ...(await issueTokens(user, res)) });
+    const userHotels = await db.select({ id: hotels.id, name: hotels.name, logoUrl: hotels.logoUrl, role: hotelMemberships.role })
+      .from(hotelMemberships)
+      .innerJoin(hotels, eq(hotels.id, hotelMemberships.hotelId))
+      .where(and(eq(hotelMemberships.userId, user.id), eq(hotelMemberships.isActive, true)));
+    res.status(201).json({ success: true, user, hotels: userHotels, ...(await issueTokens(user, res)) });
   });
 
   app.get("/api/technicians", requireAuth, async (req, res) => {
@@ -915,7 +1003,7 @@ export function createApp(io: Server): Express {
       return order;
     });
     if (assignedTo) {
-      io.to(`user:${assignedTo}`).emit("notification:new", {
+      io.to(userRoom(user.hotelId, assignedTo)).emit("notification:new", {
         kind: "WORK_ORDER_ASSIGNED",
         title: "أمر عمل جديد",
         body: created.title,
@@ -974,7 +1062,7 @@ export function createApp(io: Server): Express {
       return;
     }
     emitWorkOrder(io, user.hotelId, updated);
-    io.to(`user:${technician.id}`).emit("notification:new", {
+    io.to(userRoom(user.hotelId, technician.id)).emit("notification:new", {
       kind: "WORK_ORDER_ASSIGNED",
       title: "أُسند إليك أمر عمل",
       body: updated.title,
@@ -1352,7 +1440,7 @@ export function createApp(io: Server): Express {
       recipientId,
     }).returning();
     io.to(`hotel:${user.hotelId}:work-order:${workOrderId}`).emit("chat:message", message);
-    if (recipientId) io.to(`user:${recipientId}`).emit("chat:message", message);
+    if (recipientId) io.to(userRoom(user.hotelId, recipientId)).emit("chat:message", message);
     await writeAudit(user, "CHAT_MESSAGE_SENT", "work_order", workOrderId, { messageId: message.id });
     res.status(201).json({ success: true, message });
   });
@@ -1557,7 +1645,7 @@ export async function runSlaMonitor(io: Server): Promise<void> {
         title: kind === "SLA_OVERDUE" ? "تجاوز أمر العمل مهلة SLA" : "اقتراب مهلة SLA",
         body: order.title,
       }).onConflictDoNothing().returning();
-      if (created) io.to(`user:${manager.userId}`).emit("notification:new", created);
+      if (created) io.to(userRoom(order.hotelId, manager.userId)).emit("notification:new", created);
     }
     if (order.assignedTo && kind === "SLA_OVERDUE") {
       const [created] = await db.insert(notifications).values({
@@ -1568,7 +1656,7 @@ export async function runSlaMonitor(io: Server): Promise<void> {
         title: "تجاوز أمر العمل مهلة SLA",
         body: order.title,
       }).onConflictDoNothing().returning();
-      if (created) io.to(`user:${order.assignedTo}`).emit("notification:new", created);
+      if (created) io.to(userRoom(order.hotelId, order.assignedTo)).emit("notification:new", created);
     }
   }
 }

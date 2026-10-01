@@ -187,6 +187,9 @@ importers:
       dotenv:
         specifier: ^18.0.4
         version: 18.0.4
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.1(@types/pg@8.18.0)(pg@8.20.0)
       express:
         specifier: ^5
         version: 5.2.1
@@ -212,6 +215,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
+      esbuild:
+        specifier: 0.27.3
+        version: 0.27.3
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
